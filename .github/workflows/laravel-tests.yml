@@ -11,7 +11,7 @@ jobs:
   laravel-tests:
     runs-on: [ "self-hosted", "brokkr"]
     container:
-      image: kirschbaumdevelopment/laravel-test-runner:${{ php-version }}
+      image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
 
     services:
       mysql:
