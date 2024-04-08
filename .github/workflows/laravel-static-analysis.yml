@@ -8,7 +8,7 @@ on:
         type: string
 
 jobs:
-  static-analysis:
+  laravel-static-analysis:
     runs-on: [ "self-hosted", "brokkr"]
     container:
       image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
