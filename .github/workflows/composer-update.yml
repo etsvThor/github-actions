@@ -1,0 +1,40 @@
+name: "Composer auto-update"
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
+
+jobs:
+  composer-update:
+    runs-on: [ "self-hosted", "brokkr"]
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
+
+    steps:
+      - name: Get current date
+        id: date
+        run: |
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "datetime=$(date +'%Y-%m-%d_%H_%M')" >> $GITHUB_OUTPUT
+      - name: Checkout code
+        uses: actions/checkout@v4
+      # Automatically run composer upgrade
+      - name: Update dependencies
+        id: composer-update
+        run: |
+          {
+            echo 'update<<EOF'
+            composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 > /dev/null
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "[CI] Composer update ${{ steps.date.outputs.date }}"
+          commit-message: "[CI] composer update"
+          body: "${{ steps.composer-update.outputs.update }}"
+          branch: "composer-update-${{ steps.date.outputs.datetime }}"
+          token: "${{ secrets.COMPOSER_UPDATE_TOKEN }}"
