@@ -1,4 +1,4 @@
-name: "Composer auto-update"
+name: "Composer update"
 
 on:
   workflow_call:
