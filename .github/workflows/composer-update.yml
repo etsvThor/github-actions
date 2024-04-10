@@ -6,6 +6,9 @@ on:
       php-version:
         required: true
         type: string
+    secrets:
+      COMPOSER_UPDATE_TOKEN:
+        required: true
 
 jobs:
   composer-update:
