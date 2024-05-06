@@ -24,7 +24,16 @@ jobs:
           echo "datetime=$(date +'%Y-%m-%d_%H_%M')" >> $GITHUB_OUTPUT
       - name: Checkout code
         uses: actions/checkout@v4
-      # Automatically run composer upgrade
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: Update dependencies
         id: composer-update
         run: |
