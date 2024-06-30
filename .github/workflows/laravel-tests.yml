@@ -33,7 +33,7 @@ jobs:
       - name: Install PHP extensions
         if: ${{ inputs.php-extensions != '[]' }}
         run: |
-          apt install php${{ inputs.php-version }}-{${{ join(fromJSON(inputs.php-extensions), ',') }}}
+          apt install php${{ inputs.php-version }}-{${{ join(fromJSON(inputs.php-extensions), join(['php', inputs.php-version], '')) }}}
       - uses: actions/checkout@v4
       - name: Copy .env.ci to .env
         run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
