@@ -10,6 +10,10 @@ on:
         required: false
         type: string
         default: '[]'
+      extensions:
+        required: false
+        type: string
+        default: '[]'
 
 jobs:
   laravel-tests:
@@ -30,6 +34,10 @@ jobs:
     steps:
       - name: Update repositories
         run: apt-get update
+      - name: Install extensions
+        if: ${{ inputs.extensions != '[]' }}
+        run: |
+          apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
       - name: Install PHP extensions
         if: ${{ inputs.php-extensions != '[]' }}
         run: |
