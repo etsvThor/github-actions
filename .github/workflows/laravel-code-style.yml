@@ -21,14 +21,12 @@ jobs:
 
     steps:
       - name: Update repositories
-        run: apt-get update
+        run: sudo apt-get update
       - name: Install extensions
         if: ${{ inputs.extensions != '[]' }}
         run: |
-          apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
+          sudo apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
       - uses: actions/checkout@v4
-      - name: Copy .env.ci to .env
-        run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
@@ -44,5 +42,7 @@ jobs:
         with:
           php_version: ${{ inputs.php-version }}
           php_extensions: ${{ join(fromJSON(inputs.extensions), ' ') }}
+      - name: Copy .env.ci to .env
+        run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
       - name: Execute PHP-CS-Fixer
         run: ./vendor/bin/php-cs-fixer fix app --dry-run --diff
