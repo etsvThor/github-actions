@@ -17,7 +17,7 @@ on:
 
 jobs:
   laravel-code-style:
-    runs-on: [ "self-hosted", "brokkr"]
+    runs-on: [ "ubuntu-latest"]
 
     steps:
       - name: Update repositories
