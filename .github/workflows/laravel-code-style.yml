@@ -55,6 +55,6 @@ jobs:
         uses: php-actions/composer@v6
         with:
           php_version: ${{ inputs.php-version }}
-          php_extensions: ${{ join(fromJSON(inputs.extensions), ' ')
+          php_extensions: ${{ join(fromJSON(inputs.extensions), ' ') }}
       - name: Execute PHP-CS-Fixer
         run: ./vendor/bin/php-cs-fixer fix app --dry-run --diff
