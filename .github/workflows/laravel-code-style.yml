@@ -38,10 +38,6 @@ jobs:
         if: ${{ inputs.extensions != '[]' }}
         run: |
           apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
-      - name: Install PHP extensions
-        if: ${{ inputs.php-extensions != '[]' }}
-        run: |
-          apt install php${{ inputs.php-version }}-${{ join(fromJSON(inputs.php-extensions), format(' php{0}-', inputs.php-version)) }} -y
       - uses: actions/checkout@v4
       - name: Copy .env.ci to .env
         run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
@@ -55,7 +51,10 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
-      - name: Install Dependencies
-        run: composer install --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Installing dependencies
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ inputs.php-version }}
+          php_extensions: ${{ join(fromJSON(inputs.extensions), ' ')
       - name: Execute PHP-CS-Fixer
         run: ./vendor/bin/php-cs-fixer fix app --dry-run --diff
