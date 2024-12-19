@@ -25,7 +25,7 @@ jobs:
       - name: Install extensions
         if: ${{ inputs.extensions != '[]' }}
         run: |
-          sudo apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
+          sudo apt install ${{ join(fromJSON(inputs.php-extensions), ' ') }} -y
       - uses: actions/checkout@v4
       - name: Cache Composer dependencies
         uses: actions/cache@v4
