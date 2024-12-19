@@ -18,8 +18,6 @@ on:
 jobs:
   laravel-code-style:
     runs-on: [ "self-hosted", "brokkr"]
-    container:
-      image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
 
     steps:
       - name: Update repositories
