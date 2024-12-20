@@ -1,4 +1,4 @@
-name: Laravel Static Analysis
+name: Laravel Code Style Analysis
 
 on:
   workflow_call:
