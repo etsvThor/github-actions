@@ -1,0 +1,61 @@
+name: Laravel Code Style Analysis (docker)
+
+on:
+  workflow_call:
+    inputs:
+      php-version:
+        required: true
+        type: string
+      php-extensions:
+        required: false
+        type: string
+        default: '[]'
+      extensions:
+        required: false
+        type: string
+        default: '[]'
+
+jobs:
+  laravel-code-style:
+    runs-on: [ "self-hosted", "docker"]
+    container:
+      image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
+
+    services:
+      mysql:
+        image: mariadb:10.11.6
+        env:
+          MARIADB_ROOT_PASSWORD: test
+          MARIADB_DATABASE: test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+
+    steps:
+      - name: Update repositories
+        run: apt-get update
+      - name: Install extensions
+        if: ${{ inputs.extensions != '[]' }}
+        run: |
+          apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
+      - name: Install PHP extensions
+        if: ${{ inputs.php-extensions != '[]' }}
+        run: |
+          apt install php${{ inputs.php-version }}-${{ join(fromJSON(inputs.php-extensions), format(' php{0}-', inputs.php-version)) }} -y
+      - uses: actions/checkout@v4
+      - name: Copy .env.ci to .env
+        run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Install Dependencies
+        run: composer install --no-interaction --no-scripts --no-progress --prefer-dist
+      - name: Execute PHP-CS-Fixer
+        run: ./vendor/bin/php-cs-fixer fix app --dry-run --diff
