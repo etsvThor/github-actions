@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Update repositories
-        run: apt-get update
+        run: apt-get update --allow-releaseinfo-change
       - name: Install extensions
         if: ${{ inputs.extensions != '[]' }}
         run: |
