@@ -31,7 +31,7 @@ jobs:
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
           echo "datetime=$(date +'%Y-%m-%d_%H_%M')" >> $GITHUB_OUTPUT
       - name: Update repositories
-        run: apt-get update
+        run: apt-get update --allow-releaseinfo-change
       - name: Install extensions
         if: ${{ inputs.extensions != '[]' }}
         run: |
