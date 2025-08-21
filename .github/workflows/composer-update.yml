@@ -42,6 +42,8 @@ jobs:
           apt-get install php${{ inputs.php-version }}-${{ join(fromJSON(inputs.php-extensions), format(' php{0}-', inputs.php-version)) }} -y
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Set safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
