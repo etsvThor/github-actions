@@ -61,10 +61,12 @@ jobs:
             echo EOF
           } >> "$GITHUB_OUTPUT"
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           title: "[CI] Composer update ${{ steps.date.outputs.date }}"
           commit-message: "[CI] composer update"
           body: "${{ steps.composer-update.outputs.update }}"
           branch: "composer-update-${{ steps.date.outputs.datetime }}"
           token: "${{ secrets.COMPOSER_UPDATE_TOKEN }}"
+          reviewers: niekbr
+          team-reviewers: WebCo
