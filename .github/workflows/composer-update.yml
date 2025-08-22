@@ -69,6 +69,6 @@ jobs:
           commit-message: "[CI] composer update"
           body: "${{ steps.composer-update.outputs.update }}"
           branch: "composer-update-${{ steps.date.outputs.datetime }}"
-          #token: "${{ secrets.COMPOSER_UPDATE_TOKEN }}"
+          token: "${{ secrets.COMPOSER_UPDATE_TOKEN }}"
           reviewers: niekbr
           team-reviewers: WebCo
