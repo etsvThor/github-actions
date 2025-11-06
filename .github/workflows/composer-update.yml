@@ -64,6 +64,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
+        id: pull-request
         with:
           title: "[CI] Composer update ${{ steps.date.outputs.date }}"
           commit-message: "[CI] composer update"
@@ -72,3 +73,14 @@ jobs:
           token: "${{ secrets.COMPOSER_UPDATE_TOKEN }}"
           reviewers: niekbr
           team-reviewers: WebCo
+      - name: Check outputs
+        if: ${{ steps.pull-request.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.pull-request.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.pull-request.outputs.pull-request-url }}"
+      - name: Enable Pull Request Automerge
+        continue-on-error: true
+        run: gh pr merge --merge --auto "${{ steps.pull-request.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.COMPOSER_UPDATE_TOKEN }}
+      
