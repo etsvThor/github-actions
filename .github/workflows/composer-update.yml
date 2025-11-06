@@ -78,9 +78,9 @@ jobs:
         run: |
           echo "Pull Request Number - ${{ steps.pull-request.outputs.pull-request-number }}"
           echo "Pull Request URL - ${{ steps.pull-request.outputs.pull-request-url }}"
-      - name: Enable Pull Request Automerge
+      - uses: peter-evans/enable-pull-request-automerge@v3
         continue-on-error: true
-        run: gh pr merge --merge --auto "${{ steps.pull-request.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ secrets.COMPOSER_UPDATE_TOKEN }}
+        with:
+          token: ${{ secrets.COMPOSER_UPDATE_TOKEN }}
+          pull-request-number: ${{ steps.pull-request.outputs.pull-request-number }}
       
