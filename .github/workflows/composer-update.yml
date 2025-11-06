@@ -92,16 +92,24 @@ jobs:
           OWNER=$(echo "$REPO" | cut -d'/' -f1)
           NAME=$(echo "$REPO" | cut -d'/' -f2)
       
-          # 1 - Fetch PR ID
-          PR_ID=$(curl -s -H "Authorization: bearer $GH_TOKEN" \
+          echo "Fetching PR node ID..."
+          RESPONSE=$(curl -s -H "Authorization: bearer $GH_TOKEN" \
             -X POST -d "{\"query\":\"query { repository(owner: \\\"$OWNER\\\", name: \\\"$NAME\\\") { pullRequest(number: $PR_NUMBER) { id } } }\"}" \
-            https://api.github.com/graphql | jq -r '.data.repository.pullRequest.id')
+            https://api.github.com/graphql)
+      
+          # Extract PR ID using shell-safe pattern (no jq)
+          PR_ID=$(echo "$RESPONSE" | grep -oE '"id" ?: ?"[^"]+"' | head -1 | cut -d'"' -f4)
+      
+          if [ -z "$PR_ID" ]; then
+            echo "Failed to fetch PR ID. Response:"
+            echo "$RESPONSE"
+            exit 1
+          fi
       
           echo "PR_ID=$PR_ID"
       
-          # 2️ - Enable auto-merge
+          echo "Enabling auto-merge..."
           curl -s -X POST https://api.github.com/graphql \
             -H "Authorization: bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -d "{\"query\":\"mutation { enablePullRequestAutoMerge(input: { pullRequestId: \\\"$PR_ID\\\", mergeMethod: SQUASH }) { pullRequest { number autoMergeRequest { enabledAt enabledBy { login } } } } }\"}"
-      
