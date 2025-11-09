@@ -6,9 +6,9 @@ on:
       php-version:
         required: true
         type: string
-      pr_number:
-        required: true
-        type: number
+#      pr_number:
+#        required: true
+#        type: number
       base_branch:
         required: true
         type: string
