@@ -54,14 +54,11 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
-      - name: Update dependencies
+      - name: Run composer update and capture output
         id: composer-update
         run: |
-          {
-            echo 'update<<EOF'
-            composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 > /dev/null
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+          output=$(composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee /dev/stderr)
+          echo "update=$output" >> "$GITHUB_OUTPUT"
       - name: Save updated Composer cache
         uses: actions/cache/save@v4
         with:
