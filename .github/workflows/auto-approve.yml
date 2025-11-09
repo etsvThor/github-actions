@@ -16,7 +16,7 @@ on:
         required: true
         type: string
     secrets:
-      GITHUB_TOKEN:
+      TOKEN:
         required: true
 
 jobs:
@@ -45,4 +45,4 @@ jobs:
         if: steps.check_lock.outputs.only_lock == '1'
         uses: hmarr/auto-approve-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.TOKEN }}
