@@ -56,9 +56,7 @@ jobs:
             ${{ runner.os }}-composer-
       - name: Run composer update and capture output
         id: composer-update
-        run: |
-          output=$(composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee /dev/stderr)
-          echo "update=$output" >> "$GITHUB_OUTPUT"
+        run: composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee /tmp/output.txt)
       - name: Save updated Composer cache
         uses: actions/cache/save@v4
         with:
@@ -70,7 +68,7 @@ jobs:
         with:
           title: "[CI] Composer update ${{ steps.date.outputs.date }}"
           commit-message: "[CI] composer update"
-          body: "${{ steps.composer-update.outputs.update }}"
+          body-path: /tmp/output.txt
           branch: "composer-update-${{ steps.date.outputs.datetime }}"
           token: "${{ secrets.COMPOSER_UPDATE_TOKEN }}"
           reviewers: niekbr
