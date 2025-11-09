@@ -28,6 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - run: git fetch origin ${{ inputs.base_branch }} ${{ inputs.head_branch }}
 
       - name: Check if only composer.lock changed
