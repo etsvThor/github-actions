@@ -54,9 +54,11 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
-      - name: Run composer update and capture output
-        id: composer-update
-        run: composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee /tmp/output.txt
+      - name: Composer update with details wrapper
+        run: |
+            echo "<details>" | tee /tmp/output.txt
+            composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee -a /tmp/output.txt
+            echo "</details>" | tee -a /tmp/output.txt
       - name: Save updated Composer cache
         uses: actions/cache/save@v4
         with:
