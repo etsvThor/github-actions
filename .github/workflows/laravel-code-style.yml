@@ -14,6 +14,10 @@ on:
         required: false
         type: string
         default: '[]'
+      analysis-command:
+        required: false
+        type: string
+        default: './vendor/bin/php-cs-fixer fix app --dry-run --diff'
 
 concurrency:
   group: ${{ github.workflow }}-code-style-${{ github.ref }}
@@ -62,4 +66,4 @@ jobs:
       - name: Install Dependencies
         run: composer install --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Execute PHP-CS-Fixer
-        run: ./vendor/bin/php-cs-fixer fix app --dry-run --diff
+        run: ${{ inputs.analysis-command }}
