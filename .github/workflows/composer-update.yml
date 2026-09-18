@@ -41,14 +41,14 @@ jobs:
         run: |
           apt-get install php${{ inputs.php-version }}-${{ join(fromJSON(inputs.php-extensions), format(' php{0}-', inputs.php-version)) }} -y
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -60,12 +60,12 @@ jobs:
             composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee -a /tmp/output.txt
             echo "</details>" | tee -a /tmp/output.txt
       - name: Save updated Composer cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         id: pull-request
         with:
           title: "[CI] Composer update ${{ steps.date.outputs.date }}"
