@@ -26,7 +26,7 @@ jobs:
       image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -46,6 +46,6 @@ jobs:
 
       - name: Approve PR
         if: steps.check_lock.outputs.only_lock == '1'
-        uses: hmarr/auto-approve-action@v2
+        uses: hmarr/auto-approve-action@v4
         with:
           github-token: ${{ secrets.TOKEN }}
