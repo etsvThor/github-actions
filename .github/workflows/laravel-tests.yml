@@ -54,14 +54,14 @@ jobs:
         if: ${{ inputs.php-extensions != '[]' }}
         run: |
           apt install php${{ inputs.php-version }}-${{ join(fromJSON(inputs.php-extensions), format(' php{0}-', inputs.php-version)) }} -y
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Copy .env.ci to .env
         run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
       - name: Get Composer Cache Directory
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock', '*/composer.lock') }}
