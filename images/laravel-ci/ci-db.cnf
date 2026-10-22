@@ -1,0 +1,8 @@
+# CI only: fast and throwaway, not durable.
+[mysqld]
+bind-address                   = 127.0.0.1
+skip-name-resolve
+skip-log-bin
+innodb_flush_log_at_trx_commit = 0
+innodb_doublewrite             = 0
+sync_binlog                    = 0

@@ -1,0 +1,32 @@
+name: Build laravel-ci image
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'images/laravel-ci/**'
+      - '.github/workflows/build-laravel-ci.yml'
+      - '.github/workflows/podman-build.yml'
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '8.2', '8.3', '8.4' ]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/podman-build.yml
+    with:
+      image: ghcr.io/etsvthor/laravel-ci
+      context: images/laravel-ci
+      containerfile: images/laravel-ci/Containerfile
+      build-args: PHP_VERSION=${{ matrix.php }}
+      concurrency-key: php-${{ matrix.php }}
+      tags: |
+        type=raw,value=${{ matrix.php }},enable={{is_default_branch}}
+        type=sha,prefix=${{ matrix.php }}-sha-

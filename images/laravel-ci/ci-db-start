@@ -1,0 +1,23 @@
+#!/bin/sh
+# Start the bundled MariaDB and make the old service hostname "mysql" point to it.
+set -eu
+
+grep -qE '[[:space:]]mysql([[:space:]]|$)' /etc/hosts || echo '127.0.0.1 mysql' >> /etc/hosts
+
+mkdir -p /run/mysqld
+chown mysql:mysql /run/mysqld
+
+mariadbd --user=mysql >/tmp/mariadb.log 2>&1 &
+
+i=0
+until mariadb-admin -uroot -ptest ping --silent 2>/dev/null; do
+  i=$((i + 1))
+  if [ "$i" -ge 60 ]; then
+    echo "MariaDB did not start within 30s:" >&2
+    cat /tmp/mariadb.log >&2
+    exit 1
+  fi
+  sleep 0.5
+done
+
+echo "MariaDB ready on 127.0.0.1:3306 (host alias: mysql)"

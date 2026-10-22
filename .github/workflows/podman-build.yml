@@ -2,9 +2,42 @@ name: Container Build
 
 on:
   workflow_call:
+    inputs:
+      image:
+        description: 'Image name without tag. Defaults to ghcr.io/<owner>/<repo> of the calling repository.'
+        required: false
+        type: string
+        default: ''
+      context:
+        description: 'Build context directory.'
+        required: false
+        type: string
+        default: '.'
+      containerfile:
+        description: 'Path to the Containerfile, relative to the repository root.'
+        required: false
+        type: string
+        default: 'Containerfile'
+      build-args:
+        description: 'Extra build args, one KEY=value per line. GIT_SHA is always passed.'
+        required: false
+        type: string
+        default: ''
+      tags:
+        description: 'Tag rules for docker/metadata-action. Defaults to latest (default branch) + sha.'
+        required: false
+        type: string
+        default: |
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=sha
+      concurrency-key:
+        description: 'Extra concurrency key; set this when calling from a matrix so the builds do not cancel each other.'
+        required: false
+        type: string
+        default: ''
 
 concurrency:
-  group: ${{ github.workflow }}-container-build-${{ github.ref }}
+  group: ${{ github.workflow }}-container-build-${{ github.ref }}-${{ inputs.image }}-${{ inputs.concurrency-key }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
@@ -19,22 +52,21 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
+          images: ${{ inputs.image != '' && inputs.image || format('ghcr.io/{0}', github.repository) }}
+          tags: ${{ inputs.tags }}
 
       - id: build
         uses: redhat-actions/buildah-build@v3
         with:
-          context: .
-          containerfiles: Containerfile
+          context: ${{ inputs.context }}
+          containerfiles: ${{ inputs.containerfile }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           layers: true
           extra-args: --pull=always
           build-args: |
             GIT_SHA=${{ github.sha }}
+            ${{ inputs.build-args }}
 
       - uses: redhat-actions/push-to-registry@v3
         with:

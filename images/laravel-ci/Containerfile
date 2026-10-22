@@ -1,0 +1,29 @@
+ARG PHP_VERSION=8.5
+FROM docker.io/kirschbaumdevelopment/laravel-test-runner:${PHP_VERSION}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends mariadb-server \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY ci-db.cnf /etc/mysql/mariadb.conf.d/99-ci.cnf
+COPY ci-db-init.sql /tmp/ci-db-init.sql
+
+# Initialise the data directory at build time so jobs only have to start the server.
+RUN set -eu; \
+    rm -rf /var/lib/mysql; \
+    mkdir -p /var/lib/mysql /run/mysqld; \
+    chown mysql:mysql /var/lib/mysql /run/mysqld; \
+    mariadb-install-db --user=mysql --datadir=/var/lib/mysql --auth-root-authentication-method=normal >/dev/null; \
+    mariadbd --user=mysql --skip-networking & \
+    i=0; \
+    until mariadb-admin ping --silent 2>/dev/null; do \
+      i=$((i + 1)); [ "$i" -lt 60 ] || exit 1; sleep 0.5; \
+    done; \
+    mariadb < /tmp/ci-db-init.sql; \
+    mariadb-admin -uroot -ptest shutdown; \
+    wait; \
+    rm /tmp/ci-db-init.sql
+
+COPY --chmod=0755 ci-db-start /usr/local/bin/ci-db-start
