@@ -33,6 +33,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           layers: true
           extra-args: --pull=always
+          build-args: |
+            GIT_SHA=${{ github.sha }}
 
       - uses: redhat-actions/push-to-registry@v3
         with:
