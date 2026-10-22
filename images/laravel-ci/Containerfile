@@ -1,10 +1,16 @@
-ARG PHP_VERSION=8.5
+ARG PHP_VERSION=8.3
 FROM docker.io/kirschbaumdevelopment/laravel-test-runner:${PHP_VERSION}
 
+ARG PHP_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
+# imagick, gd and poppler-utils cover every extensions/php-extensions input in use.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends mariadb-server \
+ && apt-get install -y --no-install-recommends \
+      mariadb-server \
+      poppler-utils \
+      php${PHP_VERSION}-imagick \
+      php${PHP_VERSION}-gd \
  && rm -rf /var/lib/apt/lists/*
 
 COPY ci-db.cnf /etc/mysql/mariadb.conf.d/99-ci.cnf
