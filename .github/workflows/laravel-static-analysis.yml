@@ -23,29 +23,33 @@ jobs:
   laravel-static-analysis:
     runs-on: [ "self-hosted", "brokkr"]
     container:
-      image: kirschbaumdevelopment/laravel-test-runner:${{ inputs.php-version }}
-
-    services:
-      mysql:
-        image: mariadb:10.11.6
-        env:
-          MARIADB_ROOT_PASSWORD: test
-          MARIADB_DATABASE: test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+      image: ghcr.io/etsvthor/laravel-ci:${{ inputs.php-version }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Update repositories
-        run: apt-get update --allow-releaseinfo-change
       - name: Install extensions
-        if: ${{ inputs.extensions != '[]' }}
+        if: ${{ inputs.extensions != '[]' || inputs.php-extensions != '[]' }}
+        env:
+          EXTENSIONS: ${{ join(fromJSON(inputs.extensions), ' ') }}
+          PHP_EXTENSIONS: ${{ join(fromJSON(inputs.php-extensions), ' ') }}
+          PHP_VERSION: ${{ inputs.php-version }}
         run: |
-          apt install ${{ join(fromJSON(inputs.extensions), ' ') }} -y
-      - name: Install PHP extensions
-        if: ${{ inputs.php-extensions != '[]' }}
-        run: |
-          apt install php${{ inputs.php-version }}-${{ join(fromJSON(inputs.php-extensions), format(' php{0}-', inputs.php-version)) }} -y
+          # The laravel-ci image already ships the common extensions; only install what is missing.
+          missing=""
+          for package in $EXTENSIONS; do
+            dpkg -s "$package" >/dev/null 2>&1 || missing="$missing $package"
+          done
+          for extension in $PHP_EXTENSIONS; do
+            php -m | grep -qix "$extension" || missing="$missing php$PHP_VERSION-$extension"
+          done
+          if [ -n "$missing" ]; then
+            apt-get update --allow-releaseinfo-change
+            apt-get install -y $missing
+          fi
+      - name: Start database
+        run: ci-db-start
       - uses: actions/checkout@v7
       - name: Copy .env.ci to .env
         run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
