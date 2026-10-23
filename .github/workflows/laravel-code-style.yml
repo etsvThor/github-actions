@@ -26,7 +26,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-code-style-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
 
 jobs:
   laravel-code-style:

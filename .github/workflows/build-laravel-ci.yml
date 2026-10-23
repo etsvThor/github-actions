@@ -2,7 +2,7 @@ name: Build laravel-ci image
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
     paths:
       - 'images/laravel-ci/**'
       - '.github/workflows/build-laravel-ci.yml'
