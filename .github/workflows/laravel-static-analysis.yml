@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: '[]'
+      database:
+        description: 'Start the MariaDB bundled in the laravel-ci image (host "mysql", user root, password test, database test).'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-static-analysis-${{ github.ref }}
@@ -49,6 +54,7 @@ jobs:
             apt-get install -y $missing
           fi
       - name: Start database
+        if: ${{ inputs.database }}
         run: ci-db-start
       - uses: actions/checkout@v7
       - name: Copy .env.ci to .env

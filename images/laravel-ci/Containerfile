@@ -11,6 +11,8 @@ RUN apt-get update \
       poppler-utils \
       php${PHP_VERSION}-imagick \
       php${PHP_VERSION}-gd \
+      php${PHP_VERSION}-exif \
+      php${PHP_VERSION}-bcmath \
  && rm -rf /var/lib/apt/lists/*
 
 COPY ci-db.cnf /etc/mysql/mariadb.conf.d/99-ci.cnf
