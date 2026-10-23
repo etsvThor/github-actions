@@ -15,6 +15,9 @@ RUN apt-get update \
       php${PHP_VERSION}-bcmath \
  && rm -rf /var/lib/apt/lists/*
 
+# CI mounts one Composer cache shared by all repos; the default cap of 300MiB would keep evicting packages.
+RUN composer config --global cache-files-maxsize 2GiB
+
 COPY ci-db.cnf /etc/mysql/mariadb.conf.d/99-ci.cnf
 COPY ci-db-init.sql /tmp/ci-db-init.sql
 

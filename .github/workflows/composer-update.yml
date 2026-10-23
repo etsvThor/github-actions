@@ -26,6 +26,11 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        COMPOSER_CACHE_DIR: /composer-cache
+      # Composer cache shared by all repos on the runner host; Composer prunes it itself (cache-ttl, cache-files-maxsize).
+      volumes:
+        - /mnt/github-runners-cache/composer:/composer-cache
 
     steps:
       - name: Get current date
@@ -56,26 +61,11 @@ jobs:
         uses: actions/checkout@v7
       - name: Set safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache/restore@v6
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
       - name: Composer update with details wrapper
         run: |
             echo "<details>" | tee /tmp/output.txt
             composer update --prefer-stable --prefer-dist --no-interaction --no-ansi 2>&1 | tee -a /tmp/output.txt
             echo "</details>" | tee -a /tmp/output.txt
-      - name: Save updated Composer cache
-        uses: actions/cache/save@v6
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         id: pull-request
